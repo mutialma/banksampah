@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoBank — Bank Sampah Digital</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap');
+
+  :root {
+    --g1: #0a3d2e;
+    --g2: #155d40;
+    --g3: #1e8a5e;
+    --g4: #27c47d;
+    --g5: #5de3a8;
+    --g6: #a8f5d8;
+    --g7: #e3fdf3;
+    --accent: #f4c430;
+    --accent2: #ff7043;
+    --white: #ffffff;
+    --gray1: #0f1f1a;
+    --gray2: #1c2e28;
+    --gray3: #2a4035;
+    --gray4: #4a6b5e;
+    --gray5: #7a9e91;
+    --gray6: #b8d4ca;
+    --gray7: #e8f5f0;
+    --text: #0f1f1a;
+    --text2: #3d5a50;
+    --sidebar-w: 260px;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 4px 24px rgba(10,61,46,.12);
+    --shadow-lg: 0 8px 40px rgba(10,61,46,.18);
+    --transition: all .22s cubic-bezier(.4,0,.2,1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--gray7);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== LOGIN ===== */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--g1) 0%, var(--g2) 50%, var(--g3) 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  #login-screen::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(39,196,125,.18) 0%, transparent 70%);
+    top: -150px; right: -150px;
+    animation: pulse 4s ease-in-out infinite;
+  }
+  #login-screen::after {
+    content: '';
+    position: absolute;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(93,227,168,.12) 0%, transparent 70%);
+    bottom: -100px; left: -100px;
+    animation: pulse 4s ease-in-out infinite reverse;
+  }
+  @keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.1);opacity:.7} }
+
+  .login-card {
+    background: rgba(255,255,255,.97);
+    border-radius: 24px;
+    padding: 48px 44px;
+    width: 420px;
+    max-width: 95vw;
+    box-shadow: 0 24px 80px rgba(0,0,0,.25);
+    position: relative;
+    z-index: 10;
+    animation: slideUp .5s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes slideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+  .login-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .login-logo .icon {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, var(--g3), var(--g4));
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    box-shadow: 0 4px 16px rgba(39,196,125,.4);
+  }
+  .login-logo h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    color: var(--g1);
+    line-height: 1;
+  }
+  .login-logo span { color: var(--g4); }
+  .login-sub { color: var(--gray5); font-size: 13.5px; margin-bottom: 32px; margin-top: 4px; }
+
+  .role-tabs {
+    display: flex;
+    background: var(--gray7);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 24px;
+    gap: 4px;
+  }
+  .role-tab {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--gray5);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .role-tab.active {
+    background: white;
+    color: var(--g2);
+    box-shadow: 0 2px 8px rgba(0,0,0,.1);
+  }
+
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
+  .form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid var(--gray6);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text);
+    transition: var(--transition);
+    outline: none;
+    background: white;
+  }
+  .form-control:focus { border-color: var(--g4); box-shadow: 0 0 0 3px rgba(39,196,125,.15); }
+  .form-control.error { border-color: #e53e3e; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px 20px;
+    border: none; border-radius: var(--radius-sm);
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: var(--transition);
+    text-decoration: none; white-space: nowrap;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--g3), var(--g4));
+    color: white;
+    box-shadow: 0 4px 16px rgba(39,196,125,.35);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(39,196,125,.45); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-full { width: 100%; }
+  .btn-secondary { background: var(--gray7); color: var(--text2); border: 1.5px solid var(--gray6); }
+  .btn-secondary:hover { background: var(--gray6); }
+  .btn-danger { background: #fff0ee; color: #e53e3e; border: 1.5px solid #fcc; }
+  .btn-danger:hover { background: #ffe0db; }
+  .btn-warning { background: #fffbec; color: #b7791f; border: 1.5px solid #f6e090; }
+  .btn-warning:hover { background: #fef3c7; }
+  .btn-sm { padding: 7px 12px; font-size: 12.5px; border-radius: 8px; }
+  .btn-accent { background: linear-gradient(135deg, #f4c430, #f9a825); color: var(--g1); box-shadow: 0 4px 12px rgba(244,196,48,.3); }
+
+  .login-hint { text-align: center; margin-top: 20px; font-size: 12.5px; color: var(--gray5); background: var(--gray7); border-radius: 8px; padding: 10px; }
+  .login-hint strong { color: var(--g3); }
+
+  .form-error { color: #e53e3e; font-size: 12px; margin-top: 4px; }
+
+  /* ===== APP SHELL ===== */
+  #app { display: none; min-height: 100vh; }
+  #app.active { display: flex; }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--g1);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    z-index: 100;
+    transition: transform .3s cubic-bezier(.4,0,.2,1);
+    overflow: hidden;
+  }
+  .sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(180deg, rgba(39,196,125,.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .sidebar-logo {
+    padding: 24px 20px 20px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+  }
+  .sidebar-logo .icon {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--g3), var(--g4));
+    border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(39,196,125,.4);
+  }
+  .sidebar-logo h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    color: white;
+    line-height: 1.1;
+  }
+  .sidebar-logo span { color: var(--g5); }
+  .sidebar-logo .role-badge {
+    font-size: 10px; font-weight: 700;
+    background: rgba(39,196,125,.2);
+    color: var(--g5);
+    padding: 2px 7px; border-radius: 20px;
+    letter-spacing: .5px; text-transform: uppercase;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .sidebar-user {
+    margin: 16px 12px;
+    background: rgba(255,255,255,.06);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sidebar-avatar {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--g4), var(--g5));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .sidebar-user-name { font-size: 13px; font-weight: 600; color: white; }
+  .sidebar-user-role { font-size: 11px; color: var(--gray5); margin-top: 1px; }
+
+  .sidebar-nav { flex: 1; padding: 8px 10px; overflow-y: auto; }
+  .nav-section-label {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--gray4);
+    padding: 16px 10px 6px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    color: rgba(255,255,255,.65);
+    font-size: 13.5px; font-weight: 500;
+    cursor: pointer; transition: var(--transition);
+    margin-bottom: 2px;
+    border: none; background: transparent; width: 100%; text-align: left;
+    font-family: inherit;
+  }
+  .nav-item:hover { background: rgba(255,255,255,.08); color: white; }
+  .nav-item.active { background: linear-gradient(135deg, rgba(39,196,125,.25), rgba(39,196,125,.12)); color: var(--g5); font-weight: 600; }
+  .nav-item .nav-icon { font-size: 17px; flex-shrink: 0; width: 22px; text-align: center; }
+  .nav-item .nav-badge {
+    margin-left: auto;
+    background: var(--g4);
+    color: var(--g1);
+    font-size: 10px; font-weight: 700;
+    padding: 2px 6px; border-radius: 20px;
+  }
+
+  .sidebar-bottom {
+    padding: 12px 10px 20px;
+    border-top: 1px solid rgba(255,255,255,.07);
+  }
+  .btn-logout {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 10px 12px;
+    background: rgba(229,62,62,.12);
+    border: none; border-radius: 10px;
+    color: #fc8181; font-size: 13.5px; font-weight: 500;
+    cursor: pointer; transition: var(--transition);
+    font-family: inherit;
+  }
+  .btn-logout:hover { background: rgba(229,62,62,.22); color: #ff9999; }
+
+  /* ===== MAIN CONTENT ===== */
+  .main-content {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  .topbar {
+    background: white;
+    border-bottom: 1px solid var(--gray7);
+    padding: 0 28px;
+    height: 64px;
+    display: flex; align-items: center;
+    position: sticky; top: 0; z-index: 50;
+    box-shadow: 0 1px 8px rgba(10,61,46,.06);
+  }
+  .topbar-menu-btn {
+    display: none;
+    background: none; border: none;
+    font-size: 22px; cursor: pointer;
+    color: var(--text2); margin-right: 16px;
+    padding: 4px;
+  }
+  .topbar-title { font-size: 17px; font-weight: 700; color: var(--text); }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .topbar-date { font-size: 12.5px; color: var(--gray5); }
+  .topbar-notif {
+    width: 36px; height: 36px;
+    background: var(--gray7); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; cursor: pointer; transition: var(--transition);
+    border: none; color: var(--text2);
+    position: relative;
+  }
+  .topbar-notif:hover { background: var(--g7); }
+  .notif-dot { position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; background: var(--accent2); border-radius: 50%; border: 1.5px solid white; }
+
+  .page-content { padding: 28px; flex: 1; }
+
+  /* ===== VIEWS ===== */
+  .view { display: none; }
+  .view.active { display: block; animation: fadeIn .3s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+  .page-header { margin-bottom: 24px; }
+  .page-header h2 { font-family: 'Syne', sans-serif; font-size: 24px; color: var(--text); }
+  .page-header p { color: var(--gray5); font-size: 14px; margin-top: 3px; }
+  .page-header-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+
+  /* ===== STAT CARDS ===== */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .stat-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 22px 20px;
+    box-shadow: var(--shadow);
+    display: flex; flex-direction: column;
+    position: relative; overflow: hidden;
+    transition: var(--transition);
+  }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 80px; height: 80px;
+    border-radius: 0 0 0 80px;
+    opacity: .12;
+  }
+  .stat-card.green::before { background: var(--g4); }
+  .stat-card.yellow::before { background: var(--accent); }
+  .stat-card.blue::before { background: #4299e1; }
+  .stat-card.orange::before { background: var(--accent2); }
+  .stat-icon { font-size: 28px; margin-bottom: 12px; }
+  .stat-label { font-size: 12.5px; font-weight: 600; color: var(--gray5); text-transform: uppercase; letter-spacing: .5px; }
+  .stat-value { font-size: 26px; font-weight: 800; color: var(--text); margin: 4px 0; font-family: 'Syne', sans-serif; }
+  .stat-sub { font-size: 12px; color: var(--gray5); }
+  .stat-change { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 20px; margin-top: 6px; display: inline-block; }
+  .stat-change.up { background: #f0fff8; color: #22863a; }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--gray7);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+  }
+  .card-title { font-size: 15px; font-weight: 700; color: var(--text); }
+  .card-body { padding: 20px; }
+
+  /* ===== TABLE ===== */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: var(--gray7); }
+  th { padding: 11px 14px; text-align: left; font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
+  td { padding: 13px 14px; font-size: 13.5px; color: var(--text); border-bottom: 1px solid var(--gray7); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(39,196,125,.03); }
+  .table-actions { display: flex; gap: 6px; }
+  .badge {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 11.5px; font-weight: 600;
+  }
+  .badge-green { background: #f0fff8; color: #22863a; }
+  .badge-red { background: #fff0ee; color: #e53e3e; }
+  .badge-yellow { background: #fffbec; color: #b7791f; }
+  .badge-blue { background: #ebf8ff; color: #2b6cb0; }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(10,31,26,.55);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 16px;
+  }
+  .modal-overlay.active { display: flex; animation: fadeIn .2s ease; }
+  .modal {
+    background: white;
+    border-radius: 20px;
+    width: 100%; max-width: 500px;
+    max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 24px 60px rgba(0,0,0,.2);
+    animation: modalIn .25s cubic-bezier(.4,0,.2,1);
+  }
+  .modal.modal-lg { max-width: 620px; }
+  @keyframes modalIn { from{transform:scale(.95) translateY(10px);opacity:0} to{transform:scale(1) translateY(0);opacity:1} }
+  .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--gray7);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-title { font-size: 16px; font-weight: 700; color: var(--text); }
+  .modal-close {
+    width: 32px; height: 32px;
+    border: none; background: var(--gray7);
+    border-radius: 8px; font-size: 18px; color: var(--gray5);
+    cursor: pointer; transition: var(--transition);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-close:hover { background: var(--gray6); color: var(--text); }
+  .modal-body { padding: 24px; }
+  .modal-footer { padding: 16px 24px; border-top: 1px solid var(--gray7); display: flex; gap: 10px; justify-content: flex-end; }
+
+  /* ===== FORMS ===== */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  select.form-control { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%237a9e91' d='M6 8L0 0h12z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+  textarea.form-control { resize: vertical; min-height: 80px; }
+
+  /* ===== TOAST ===== */
+  #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+  .toast {
+    background: white;
+    border-radius: 12px;
+    padding: 14px 18px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.15);
+    display: flex; align-items: center; gap: 12px;
+    min-width: 280px; max-width: 360px;
+    animation: toastIn .3s cubic-bezier(.4,0,.2,1);
+    border-left: 4px solid var(--g4);
+  }
+  .toast.error { border-left-color: #e53e3e; }
+  .toast.warning { border-left-color: var(--accent); }
+  @keyframes toastIn { from{transform:translateX(100px);opacity:0} to{transform:translateX(0);opacity:1} }
+  .toast-icon { font-size: 20px; flex-shrink: 0; }
+  .toast-msg { font-size: 13.5px; font-weight: 500; color: var(--text); flex: 1; }
+
+  /* ===== SEARCH BAR ===== */
+  .search-bar-wrap { position: relative; }
+  .search-bar { padding-left: 36px !important; }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--gray5); font-size: 15px; pointer-events: none; }
+
+  /* ===== CHART AREA ===== */
+  .chart-area { padding: 20px; }
+  canvas { max-height: 280px; }
+
+  /* ===== PROFILE CARD ===== */
+  .profile-banner {
+    background: linear-gradient(135deg, var(--g1), var(--g3));
+    border-radius: 16px 16px 0 0;
+    height: 100px; position: relative; overflow: hidden;
+  }
+  .profile-banner::before { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='1.5' fill='rgba(255,255,255,.08)'/%3E%3C/svg%3E"); }
+  .profile-avatar {
+    width: 80px; height: 80px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--g4), var(--g5));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    border: 4px solid white;
+    margin: -40px auto 0;
+    position: relative;
+    box-shadow: 0 4px 16px rgba(39,196,125,.3);
+  }
+  .profile-info { text-align: center; padding: 12px 0 20px; }
+  .profile-info h3 { font-size: 19px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .profile-info p { font-size: 13px; color: var(--gray5); }
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state { text-align: center; padding: 48px 20px; color: var(--gray5); }
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; opacity: .5; }
+  .empty-state h3 { font-size: 16px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
+  .empty-state p { font-size: 13px; }
+
+  /* ===== SALDO CARD ===== */
+  .saldo-card {
+    background: linear-gradient(135deg, var(--g2), var(--g3));
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    color: white;
+    position: relative; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(21,93,64,.4);
+  }
+  .saldo-card::before { content:''; position:absolute; right:-30px; top:-30px; width:140px; height:140px; border-radius:50%; background:rgba(255,255,255,.07); }
+  .saldo-card::after { content:''; position:absolute; right:40px; bottom:-20px; width:80px; height:80px; border-radius:50%; background:rgba(255,255,255,.05); }
+  .saldo-label { font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; opacity: .75; }
+  .saldo-amount { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; margin: 8px 0; }
+  .saldo-id { font-size: 12.5px; opacity: .7; }
+
+  /* ===== CONFIRM MODAL ===== */
+  .confirm-icon { font-size: 48px; text-align: center; margin-bottom: 12px; }
+  .confirm-text { text-align: center; color: var(--text2); font-size: 14px; line-height: 1.6; }
+
+  /* ===== SIDEBAR OVERLAY ===== */
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 99; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-overlay.active { display: block; }
+    .main-content { margin-left: 0; }
+    .topbar-menu-btn { display: flex; }
+    .form-row { grid-template-columns: 1fr; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    .page-content { padding: 16px; }
+    .topbar { padding: 0 16px; }
+  }
+  @media (max-width: 480px) {
+    .stat-grid { grid-template-columns: 1fr; }
+    .login-card { padding: 32px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast-container"></div>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="icon">♻️</div>
+      <div>
+        <h1>Eco<span>Bank</span></h1>
+        <div class="role-badge" style="margin-top:4px">Bank Sampah Digital</div>
+      </div>
+    </div>
+    <p class="login-sub">Kelola tabungan sampah Anda dengan mudah dan cepat</p>
+    <div class="role-tabs">
+      <button class="role-tab active" onclick="setLoginRole('admin')">👤 Admin</button>
+      <button class="role-tab" onclick="setLoginRole('user')">🙋 Nasabah</button>
+    </div>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="login-username" class="form-control" placeholder="Masukkan username" onkeydown="if(event.key==='Enter')doLogin()">
+      <div class="form-error" id="err-user"></div>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="login-password" class="form-control" placeholder="Masukkan password" onkeydown="if(event.key==='Enter')doLogin()">
+      <div class="form-error" id="err-pass"></div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="doLogin()" style="margin-top:4px;padding:13px">
+      🔐 Masuk
+    </button>
+    <div class="login-hint" id="login-hint">
+      <strong>Demo Admin:</strong> admin / admin123
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- APP -->
+<div id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="icon">♻️</div>
+      <div>
+        <h2>Eco<span>Bank</span></h2>
+        <div class="role-badge" id="sidebar-role-badge">Admin</div>
+      </div>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebar-avatar">👤</div>
+      <div>
+        <div class="sidebar-user-name" id="sidebar-username">Admin</div>
+        <div class="sidebar-user-role" id="sidebar-userrole">Administrator</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-bottom">
+      <button class="btn-logout" onclick="doLogout()">🚪 Keluar</button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="topbar-menu-btn" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-right">
+        <div class="topbar-date" id="topbar-date"></div>
+        <button class="topbar-notif">🔔<div class="notif-dot"></div></button>
+      </div>
+    </header>
+    <div class="page-content" id="page-content">
+      <!-- views rendered here -->
+    </div>
+  </div>
+</div>
+
+<!-- MODAL OVERLAY -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-box" role="dialog">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title"></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<script>
+// ==================== DATA STORE ====================
+const DB = {
+  currentUser: null,
+  currentRole: 'admin',
+
+  admin: { username: 'admin', password: 'admin123', name: 'Administrator', email: 'admin@ecobank.id' },
+
+  nasabah: [
+    { id: 'N001', name: 'Siti Rahayu', alamat: 'Jl. Merdeka No. 12, Jakarta', hp: '081234567890', saldo: 125000 },
+    { id: 'N002', name: 'Budi Santoso', alamat: 'Jl. Pahlawan No. 5, Bandung', hp: '085678901234', saldo: 78500 },
+    { id: 'N003', name: 'Dewi Kusuma', alamat: 'Jl. Kenanga No. 8, Surabaya', hp: '087890123456', saldo: 210000 },
+    { id: 'N004', name: 'Ahmad Fauzi', alamat: 'Jl. Anggrek No. 20, Yogyakarta', hp: '082345678901', saldo: 45000 },
+  ],
+  users: [
+    { username: 'siti', password: 'siti123', nasabahId: 'N001' },
+    { username: 'budi', password: 'budi123', nasabahId: 'N002' },
+    { username: 'dewi', password: 'dewi123', nasabahId: 'N003' },
+    { username: 'ahmad', password: 'ahmad123', nasabahId: 'N004' },
+  ],
+
+  jenisSampah: [
+    { id: 'S001', jenis: 'Botol Plastik', harga: 3000 },
+    { id: 'S002', jenis: 'Kertas/Kardus', harga: 1500 },
+    { id: 'S003', jenis: 'Kaleng Aluminium', harga: 8000 },
+    { id: 'S004', jenis: 'Besi/Logam', harga: 5000 },
+    { id: 'S005', jenis: 'Kaca/Botol Kaca', harga: 1000 },
+  ],
+
+  setoran: [
+    { id: 'SET001', tanggal: '2025-01-10', nasabahId: 'N001', jenisSampahId: 'S001', berat: 5, hargaPerKg: 3000, total: 15000 },
+    { id: 'SET002', tanggal: '2025-01-15', nasabahId: 'N002', jenisSampahId: 'S002', berat: 8, hargaPerKg: 1500, total: 12000 },
+    { id: 'SET003', tanggal: '2025-01-20', nasabahId: 'N003', jenisSampahId: 'S003', berat: 3, hargaPerKg: 8000, total: 24000 },
+    { id: 'SET004', tanggal: '2025-02-05', nasabahId: 'N001', jenisSampahId: 'S004', berat: 10, hargaPerKg: 5000, total: 50000 },
+    { id: 'SET005', tanggal: '2025-02-12', nasabahId: 'N004', jenisSampahId: 'S001', berat: 4, hargaPerKg: 3000, total: 12000 },
+    { id: 'SET006', tanggal: '2025-02-18', nasabahId: 'N002', jenisSampahId: 'S003', berat: 2, hargaPerKg: 8000, total: 16000 },
+    { id: 'SET007', tanggal: '2025-03-01', nasabahId: 'N003', jenisSampahId: 'S002', berat: 12, hargaPerKg: 1500, total: 18000 },
+    { id: 'SET008', tanggal: '2025-03-10', nasabahId: 'N001', jenisSampahId: 'S005', berat: 6, hargaPerKg: 1000, total: 6000 },
+  ],
+
+  penarikan: [
+    { id: 'TAR001', tanggal: '2025-01-25', nasabahId: 'N001', jumlah: 30000 },
+    { id: 'TAR002', tanggal: '2025-02-28', nasabahId: 'N002', jumlah: 20000 },
+    { id: 'TAR003', tanggal: '2025-03-05', nasabahId: 'N003', jumlah: 50000 },
+  ],
+
+  nextNasabahNum: 5,
+  nextJenisNum: 6,
+  nextSetNum: 9,
+  nextTarNum: 4,
+
+  genId(prefix, num) { return prefix + String(num).padStart(3,'0'); },
+  getNasabah(id) { return this.nasabah.find(n=>n.id===id); },
+  getJenis(id) { return this.jenisSampah.find(j=>j.id===id); },
+};
+
+// ==================== UI STATE ====================
+let currentView = '';
+let loginRole = 'admin';
+let charts = {};
+
+function setLoginRole(role) {
+  loginRole = role;
+  document.querySelectorAll('.role-tab').forEach((t,i)=>{
+    t.classList.toggle('active', (i===0&&role==='admin')||(i===1&&role==='user'));
+  });
+  document.getElementById('login-hint').innerHTML = role==='admin'
+    ? '<strong>Demo Admin:</strong> admin / admin123'
+    : '<strong>Demo Nasabah:</strong> siti/siti123 | budi/budi123 | dewi/dewi123';
+}
+
+function doLogin() {
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value.trim();
+  document.getElementById('err-user').textContent = '';
+  document.getElementById('err-pass').textContent = '';
+  let ok = false;
+
+  if (!username) { document.getElementById('err-user').textContent = 'Username wajib diisi'; return; }
+  if (!password) { document.getElementById('err-pass').textContent = 'Password wajib diisi'; return; }
+
+  if (loginRole === 'admin') {
+    if (username === DB.admin.username && password === DB.admin.password) {
+      DB.currentUser = { ...DB.admin, role: 'admin' };
+      ok = true;
+    }
+  } else {
+    const u = DB.users.find(u=>u.username===username&&u.password===password);
+    if (u) {
+      const n = DB.getNasabah(u.nasabahId);
+      DB.currentUser = { ...u, ...n, role: 'user' };
+      ok = true;
+    }
+  }
+
+  if (!ok) {
+    document.getElementById('err-pass').textContent = 'Username atau password salah';
+    document.getElementById('login-password').classList.add('error');
+    return;
+  }
+
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').classList.add('active');
+  initApp();
+  toast('Selamat datang, ' + DB.currentUser.name + '! 👋');
+}
+
+function doLogout() {
+  showConfirm('Keluar?', 'Apakah Anda yakin ingin keluar dari aplikasi?', ()=>{
+    DB.currentUser = null;
+    document.getElementById('app').classList.remove('active');
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('login-username').value = '';
+    document.getElementById('login-password').value = '';
+    document.getElementById('login-password').classList.remove('error');
+    // destroy charts
+    Object.values(charts).forEach(c=>{ try{c.destroy()}catch(e){} });
+    charts = {};
+  });
+}
+
+function initApp() {
+  const u = DB.currentUser;
+  document.getElementById('sidebar-username').textContent = u.name || u.username;
+  document.getElementById('sidebar-userrole').textContent = u.role === 'admin' ? 'Administrator' : 'Nasabah';
+  document.getElementById('sidebar-role-badge').textContent = u.role === 'admin' ? 'Admin' : 'Nasabah';
+  document.getElementById('sidebar-avatar').textContent = u.role === 'admin' ? '🛡️' : '🙋';
+  renderNav();
+  updateDate();
+  setInterval(updateDate, 60000);
+  navigate(u.role === 'admin' ? 'admin-dashboard' : 'user-dashboard');
+}
+
+function updateDate() {
+  const d = new Date();
+  document.getElementById('topbar-date').textContent = d.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+
+const ADMIN_NAV = [
+  { section: 'UTAMA' },
+  { id:'admin-dashboard', icon:'🏠', label:'Dashboard' },
+  { id:'admin-nasabah', icon:'👥', label:'Data Nasabah' },
+  { id:'admin-sampah', icon:'♻️', label:'Jenis Sampah' },
+  { section: 'TRANSAKSI' },
+  { id:'admin-setoran', icon:'📥', label:'Input Setoran' },
+  { id:'admin-penarikan', icon:'💸', label:'Input Penarikan' },
+  { id:'admin-riwayat', icon:'📋', label:'Riwayat Transaksi' },
+];
+const USER_NAV = [
+  { section: 'UTAMA' },
+  { id:'user-dashboard', icon:'🏠', label:'Dashboard' },
+  { id:'user-setoran', icon:'📥', label:'Riwayat Setoran' },
+  { id:'user-penarikan', icon:'💸', label:'Riwayat Penarikan' },
+  { section: 'INFO' },
+  { id:'user-harga', icon:'💰', label:'Harga Sampah' },
+  { id:'user-profil', icon:'👤', label:'Profil Saya' },
+];
+
+function renderNav() {
+  const nav = DB.currentUser.role === 'admin' ? ADMIN_NAV : USER_NAV;
+  document.getElementById('sidebar-nav').innerHTML = nav.map(item => {
+    if (item.section) return `<div class="nav-section-label">${item.section}</div>`;
+    return `<button class="nav-item" id="nav-${item.id}" onclick="navigate('${item.id}')">
+      <span class="nav-icon">${item.icon}</span>${item.label}
+    </button>`;
+  }).join('');
+}
+
+function navigate(view) {
+  currentView = view;
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const navEl = document.getElementById('nav-'+view);
+  if (navEl) navEl.classList.add('active');
+  const labels = { 'admin-dashboard':'Dashboard','admin-nasabah':'Data Nasabah','admin-sampah':'Jenis Sampah','admin-setoran':'Input Setoran','admin-penarikan':'Input Penarikan','admin-riwayat':'Riwayat Transaksi','user-dashboard':'Dashboard','user-setoran':'Riwayat Setoran','user-penarikan':'Riwayat Penarikan','user-harga':'Harga Sampah','user-profil':'Profil Saya' };
+  document.getElementById('topbar-title').textContent = labels[view] || view;
+  renderView(view);
+  closeSidebar();
+}
+
+function renderView(view) {
+  const el = document.getElementById('page-content');
+  Object.values(charts).forEach(c=>{ try{c.destroy()}catch(e){} });
+  charts = {};
+  const renderers = {
+    'admin-dashboard': renderAdminDashboard,
+    'admin-nasabah': renderAdminNasabah,
+    'admin-sampah': renderAdminSampah,
+    'admin-setoran': renderAdminSetoran,
+    'admin-penarikan': renderAdminPenarikan,
+    'admin-riwayat': renderAdminRiwayat,
+    'user-dashboard': renderUserDashboard,
+    'user-setoran': renderUserSetoran,
+    'user-penarikan': renderUserPenarikan,
+    'user-harga': renderUserHarga,
+    'user-profil': renderUserProfil,
+  };
+  if (renderers[view]) {
+    el.innerHTML = renderers[view]();
+    if (view === 'admin-dashboard') initAdminCharts();
+    if (view === 'user-dashboard') initUserChart();
+  }
+}
+
+// ==================== HELPERS ====================
+function fmt(n) { return 'Rp ' + Number(n).toLocaleString('id-ID'); }
+function fmtDate(d) { return new Date(d).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}); }
+function uid() { return Date.now().toString(36); }
+function toast(msg, type='success') {
+  const icons = {success:'✅', error:'❌', warning:'⚠️'};
+  const t = document.createElement('div');
+  t.className = `toast ${type==='success'?'':type}`;
+  t.innerHTML = `<span class="toast-icon">${icons[type]||'ℹ️'}</span><span class="toast-msg">${msg}</span>`;
+  document.getElementById('toast-container').appendChild(t);
+  setTimeout(()=>t.remove(), 3500);
+}
+function showModal(title, body, footer, lg=false) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('modal-footer').innerHTML = footer;
+  document.getElementById('modal-box').className = 'modal' + (lg?' modal-lg':'');
+  document.getElementById('modal-overlay').classList.add('active');
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('active'); }
+function showConfirm(title, msg, onYes, danger=false) {
+  showModal(title, `<div class="confirm-icon">${danger?'🗑️':'❓'}</div><div class="confirm-text">${msg}</div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Batal</button>
+     <button class="btn ${danger?'btn-danger':'btn-primary'}" onclick="closeModal();(${onYes.toString()})()">Ya, Lanjutkan</button>`
+  );
+}
+function v(id){ return document.getElementById(id); }
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('active');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('active');
+}
+
+// ==================== ADMIN DASHBOARD ====================
+function renderAdminDashboard() {
+  const totalSaldo = DB.nasabah.reduce((s,n)=>s+n.saldo,0);
+  const totalBerat = DB.setoran.reduce((s,t)=>s+t.berat,0);
+  const totalSetoran = DB.setoran.reduce((s,t)=>s+t.total,0);
+  const totalNasabah = DB.nasabah.length;
+  return `
+  <div class="page-header"><h2>Dashboard Admin</h2><p>Ringkasan data Bank Sampah EcoBank</p></div>
+  <div class="stat-grid">
+    <div class="stat-card green">
+      <div class="stat-icon">👥</div>
+      <div class="stat-label">Total Nasabah</div>
+      <div class="stat-value">${totalNasabah}</div>
+      <div class="stat-sub">Nasabah aktif</div>
+      <span class="stat-change up">▲ Terdaftar</span>
+    </div>
+    <div class="stat-card yellow">
+      <div class="stat-icon">⚖️</div>
+      <div class="stat-label">Total Berat Sampah</div>
+      <div class="stat-value">${totalBerat} kg</div>
+      <div class="stat-sub">Semua setoran</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-icon">💰</div>
+      <div class="stat-label">Total Saldo Nasabah</div>
+      <div class="stat-value">${(totalSaldo/1000).toFixed(0)}K</div>
+      <div class="stat-sub">${fmt(totalSaldo)}</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-icon">📦</div>
+      <div class="stat-label">Total Transaksi</div>
+      <div class="stat-value">${DB.setoran.length+DB.penarikan.length}</div>
+      <div class="stat-sub">${fmt(totalSetoran)} disetorkan</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <div class="card">
+      <div class="card-header"><div class="card-title">📊 Grafik Setoran Bulanan</div></div>
+      <div class="chart-area"><canvas id="chart-setoran"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">🥧 Komposisi Jenis Sampah</div></div>
+      <div class="chart-area"><canvas id="chart-jenis"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">📋 Setoran Terbaru</div></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tanggal</th><th>Nasabah</th><th>Jenis Sampah</th><th>Berat</th><th>Total</th></tr></thead>
+        <tbody>${DB.setoran.slice(-5).reverse().map(s=>{
+          const n=DB.getNasabah(s.nasabahId), j=DB.getJenis(s.jenisSampahId);
+          return `<tr><td>${fmtDate(s.tanggal)}</td><td>${n?n.name:'-'}</td><td>${j?j.jenis:'-'}</td><td>${s.berat} kg</td><td><span class="badge badge-green">${fmt(s.total)}</span></td></tr>`;
+        }).join('')}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+function initAdminCharts() {
+  // Setoran bulanan
+  const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const monthData = Array(12).fill(0);
+  DB.setoran.forEach(s=>{ const m=new Date(s.tanggal).getMonth(); monthData[m]+=s.total; });
+  charts['setoran'] = new Chart(v('chart-setoran'), {
+    type: 'bar',
+    data: { labels: months, datasets: [{ label: 'Total Setoran (Rp)', data: monthData, backgroundColor: 'rgba(39,196,125,.75)', borderRadius: 8, borderSkipped: false }] },
+    options: { responsive:true, plugins:{legend:{display:false}}, scales:{ y:{ticks:{callback:v=>v>=1000?(v/1000)+'K':v}} } }
+  });
+  // Jenis sampah
+  const jenisData = DB.jenisSampah.map(j=>({ label:j.jenis, val:DB.setoran.filter(s=>s.jenisSampahId===j.id).reduce((a,s)=>a+s.berat,0) }));
+  charts['jenis'] = new Chart(v('chart-jenis'), {
+    type: 'doughnut',
+    data: { labels: jenisData.map(d=>d.label), datasets:[{ data: jenisData.map(d=>d.val), backgroundColor:['#27c47d','#f4c430','#4299e1','#ff7043','#9f7aea'], borderWidth:0 }] },
+    options: { responsive:true, plugins:{legend:{position:'bottom',labels:{font:{size:11}}}} }
+  });
+}
+
+// ==================== ADMIN NASABAH ====================
+function renderAdminNasabah(q='') {
+  let list = DB.nasabah.filter(n=>!q||n.name.toLowerCase().includes(q)||n.id.toLowerCase().includes(q)||n.hp.includes(q));
+  return `
+  <div class="page-header-row">
+    <div class="page-header"><h2>Data Nasabah</h2><p>Kelola data nasabah bank sampah</p></div>
+    <button class="btn btn-primary" onclick="modalTambahNasabah()">➕ Tambah Nasabah</button>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="card-header">
+      <div class="card-title">Daftar Nasabah (${list.length})</div>
+      <div class="search-bar-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="form-control search-bar" placeholder="Cari nama/ID/HP..." style="width:220px"
+          oninput="document.getElementById('page-content').innerHTML=renderAdminNasabah(this.value.toLowerCase());bindNasabah(this.value)" value="${q}">
+      </div>
+    </div>
+    <div class="table-wrap" id="nasabah-table">
+      <table>
+        <thead><tr><th>ID</th><th>Nama</th><th>Alamat</th><th>No HP</th><th>Saldo</th><th>Aksi</th></tr></thead>
+        <tbody id="tbody-nasabah">${list.length?list.map(n=>`
+          <tr>
+            <td><span class="badge badge-green">${n.id}</span></td>
+            <td><strong>${n.name}</strong></td>
+            <td style="max-width:180px;font-size:12.5px">${n.alamat}</td>
+            <td>${n.hp}</td>
+            <td style="font-weight:700;color:var(--g3)">${fmt(n.saldo)}</td>
+            <td><div class="table-actions">
+              <button class="btn btn-warning btn-sm" onclick="modalEditNasabah('${n.id}')">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="hapusNasabah('${n.id}')">🗑️</button>
+            </div></td>
+          </tr>`).join(''):`<tr><td colspan="6"><div class="empty-state"><div class="icon">👥</div><h3>Belum ada nasabah</h3><p>Klik "Tambah Nasabah" untuk menambahkan</p></div></td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+function bindNasabah(q){ /* search handled inline */ }
+
+function modalTambahNasabah() {
+  showModal('Tambah Nasabah Baru', `
+    <div class="form-group"><label>Nama Lengkap</label><input id="fn-nama" class="form-control" placeholder="Nama lengkap nasabah"></div>
+    <div class="form-group"><label>Alamat</label><textarea id="fn-alamat" class="form-control" placeholder="Alamat lengkap"></textarea></div>
+    <div class="form-group"><label>No HP</label><input id="fn-hp" class="form-control" placeholder="08xxxxxxxxxx" type="tel"></div>
+    <div class="form-error" id="fn-err"></div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Batal</button>
+     <button class="btn btn-primary" onclick="simpanNasabah()">💾 Simpan</button>`
+  );
+}
+function simpanNasabah() {
+  const nama=v('fn-nama').value.trim(), alamat=v('fn-alamat').value.trim(), hp=v('fn-hp').value.trim();
+  if(!nama||!alamat||!hp){v('fn-err').textContent='Semua field wajib diisi';return;}
+  if(!/^08\d{7,12}$/.test(hp)){v('fn-err').textContent='No HP tidak valid';return;}
+  const id = DB.genId('N', DB.nextNasabahNum++);
+  DB.nasabah.push({id, name:nama, alamat, hp, saldo:0});
+  // add user account
+  DB.users.push({username:nama.split(' ')[0].toLowerCase(), password:'user123', nasabahId:id});
+  closeModal(); toast('Nasabah '+nama+' berhasil ditambahkan!');
+  renderView('admin-nasabah');
+}
+function modalEditNasabah(id) {
+  const n = DB.getNasabah(id);
+  showModal('Edit Nasabah', `
+    <div class="form-group"><label>Nama Lengkap</label><input id="en-nama" class="form-control" value="${n.name}"></div>
+    <div class="form-group"><label>Alamat</label><textarea id="en-alamat" class="form-control">${n.alamat}</textarea></div>
+    <div class="form-group"><label>No HP</label><input id="en-hp" class="form-control" value="${n.hp}" type="tel"></div>
+    <div class="form-error" id="en-err"></div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Batal</button>
+     <button class="btn btn-primary" onclick="updateNasabah('${id}')">💾 Simpan</button>`
+  );
+}
+function updateNasabah(id) {
+  const n=DB.getNasabah(id), nama=v('en-nama').value.trim(), alamat=v('en-alamat').value.trim(), hp=v('en-hp').value.trim();
+  if(!nama||!alamat||!hp){v('en-err').textContent='Semua field wajib diisi';return;}
+  n.name=nama; n.alamat=alamat; n.hp=hp;
+  closeModal(); toast('Data nasabah berhasil diperbarui!');
+  renderView('admin-nasabah');
+}
+function hapusNasabah(id) {
+  const n=DB.getNasabah(id);
+  showConfirm('Hapus Nasabah', `Yakin hapus nasabah <strong>${n.name}</strong>? Data transaksinya juga akan dihapus.`, ()=>{
+    DB.nasabah = DB.nasabah.filter(x=>x.id!==id);
+    DB.setoran = DB.setoran.filter(x=>x.nasabahId!==id);
+    DB.penarikan = DB.penarikan.filter(x=>x.nasabahId!==id);
+    DB.users = DB.users.filter(x=>x.nasabahId!==id);
+    toast('Nasabah berhasil dihapus','warning');
+    renderView('admin-nasabah');
+  }, true);
+}
+
+// ==================== ADMIN JENIS SAMPAH ====================
+function renderAdminSampah() {
+  return `
+  <div class="page-header-row">
+    <div class="page-header"><h2>Jenis Sampah</h2><p>Kelola kategori dan harga sampah</p></div>
+    <button class="btn btn-primary" onclick="modalTambahJenis()">➕ Tambah Jenis</button>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="card-header"><div class="card-title">Daftar Jenis Sampah (${DB.jenisSampah.length})</div></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Jenis Sampah</th><th>Harga per Kg</th><th>Total Disetorkan</th><th>Aksi</th></tr></thead>
+        <tbody>${DB.jenisSampah.map(j=>{
+          const tot = DB.setoran.filter(s=>s.jenisSampahId===j.id).reduce((a,s)=>a+s.berat,0);
+          return `<tr>
+            <td><span class="badge badge-blue">${j.id}</span></td>
+            <td><strong>${j.jenis}</strong></td>
+            <td style="color:var(--g3);font-weight:700">${fmt(j.harga)}/kg</td>
+            <td>${tot} kg</td>
+            <td><div class="table-actions">
+              <button class="btn btn-warning btn-sm" onclick="modalEditJenis('${j.id}')">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="hapusJenis('${j.id}')">🗑️</button>
+            </div></td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+function modalTambahJenis() {
+  showModal('Tambah Jenis Sampah', `
+    <div class="form-group"><label>Nama Jenis Sampah</label><input id="fj-jenis" class="form-control" placeholder="cth: Botol Plastik"></div>
+    <div class="form-group"><label>Harga per Kg (Rp)</label><input id="fj-harga" class="form-control" type="number" placeholder="0" min="0"></div>
+    <div class="form-error" id="fj-err"></div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Batal</button>
+     <button class="btn btn-primary" onclick="simpanJenis()">💾 Simpan</button>`
+  );
+}
+function simpanJenis() {
+  const jenis=v('fj-jenis').value.trim(), harga=parseInt(v('fj-harga').value);
+  if(!jenis){v('fj-err').textContent='Nama jenis wajib diisi';return;}
+  if(!harga||harga<0){v('fj-err').textContent='Harga tidak valid';return;}
+  const id=DB.genId('S',DB.nextJenisNum++);
+  DB.jenisSampah.push({id,jenis,harga});
+  closeModal(); toast('Jenis sampah '+jenis+' ditambahkan!');
+  renderView('admin-sampah');
+}
+function modalEditJenis(id) {
+  const j=DB.getJenis(id);
+  showModal('Edit Jenis Sampah', `
+    <div class="form-group"><label>Nama Jenis Sampah</label><input id="ej-jenis" class="form-control" value="${j.jenis}"></div>
+    <div class="form-group"><label>Harga per Kg (Rp)</label><input id="ej-harga" class="form-control" type="number" value="${j.harga}" min="0"></div>
+    <div class="form-error" id="ej-err"></div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Batal</button>
+     <button class="btn btn-primary" onclick="updateJenis('${id}')">💾 Simpan</button>`
+  );
+}
+function updateJenis(id) {
+  const j=DB.getJenis(id), jenis=v('ej-jenis').value.trim(), harga=parseInt(v('ej-harga').value);
+  if(!jenis){v('ej-err').textContent='Nama jenis wajib diisi';return;}
+  if(!harga||harga<0){v('ej-err').textContent='Harga tidak valid';return;}
+  j.jenis=jenis; j.harga=harga;
+  closeModal(); toast('Jenis sampah diperbarui!');
+  renderView('admin-sampah');
+}
+function hapusJenis(id) {
+  const j=DB.getJenis(id);
+  showConfirm('Hapus Jenis Sampah', `Yakin hapus <strong>${j.jenis}</strong>?`, ()=>{
+    DB.jenisSampah=DB.jenisSampah.filter(x=>x.id!==id);
+    toast('Jenis sampah dihapus','warning');
+    renderView('admin-sampah');
+  }, true);
+}
+
+// ==================== ADMIN SETORAN ====================
+function renderAdminSetoran() {
+  return `
+  <div class="page-header"><h2>Input Setoran Sampah</h2><p>Catat setoran sampah nasabah</p></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="card">
+      <div class="card-header"><div class="card-title">📝 Form Setoran</div></div>
+      <div class="card-body">
+        <div class="form-group"><label>Tanggal Setoran</label><input id="set-tgl" type="date" class="form-control" value="${new Date().toISOString().slice(0,10)}"></div>
+        <div class="form-group">
+          <label>Nasabah</label>
+          <select id="set-nasabah" class="form-control" onchange="updateJenisOptions()">
+            <option value="">-- Pilih Nasabah --</option>
+            ${DB.nasabah.map(n=>`<option value="${n.id}">${n.name} (${n.id})</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Jenis Sampah</label>
+          <select id="set-jenis" class="form-control" onchange="calcTotal()">
+            <option value="">-- Pilih Jenis --</option>
+            ${DB.jenisSampah.map(j=>`<option value="${j.id}" data-harga="${j.harga}">${j.jenis} (${fmt(j.harga)}/kg)</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Berat (kg)</label>
+          <input id="set-berat" type="number" class="form-control" placeholder="0.0" min="0.1" step="0.1" oninput="calcTotal()">
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Harga/kg</label><input id="set-harga" class="form-control" readonly style="background:var(--gray7);font-weight:700;color:var(--g3)"></div>
+          <div class="form-group"><label>Total</label><input id="set-total" class="form-control" readonly style="background:var(--gray7);font-weight:800;color:var(--g2);font-size:16px"></div>
+        </div>
+        <div class="form-error" id="set-err"></div>
+        <button class="btn btn-primary btn-full" style="margin-top:8px" onclick="simpanSetoran()">💾 Simpan Setoran</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">📋 Riwayat Setoran Hari Ini</div></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nasabah</th><th>Jenis</th><th>Berat</th><th>Total</th></tr></thead>
+          <tbody id="today-setoran">${renderTodaySetoran()}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+function renderTodaySetoran() {
+  const today = new Date().toISOString().slice(0,10);
+  const list = DB.setoran.filter(s=>s.tanggal===today);
+  if(!list.length) return `<tr><td colspan="4"><div class="empty-state" style="padding:24px"><div class="icon" style="font-size:32px">📭</div><p>Belum ada setoran hari ini</p></div></td></tr>`;
+  return list.map(s=>{
+    const n=DB.getNasabah(s.nasabahId), j=DB.getJenis(s.jenisSampahId);
+    return `<tr><td>${n?n.name:'-'}</td><td>${j?j.jenis:'-'}</td><td>${s.berat}kg</td><td><span class="badge badge-green">${fmt(s.total)}</span></td></tr>`;
+  }).join('');
+}
+function calcTotal() {
+  const sel=v('set-jenis'), berat=parseFloat(v('set-berat').value)||0;
+  const opt=sel.options[sel.selectedIndex];
+  const harga=opt?parseInt(opt.getAttribute('data-harga')||0):0;
+  v('set-harga').value = harga?fmt(harga):'';
+  v('set-total').value = harga&&berat?fmt(harga*berat):'';
+}
+function updateJenisOptions(){calcTotal();}
+function simpanSetoran() {
+  const tgl=v('set-tgl').value, nasabahId=v('set-nasabah').value, jenisId=v('set-jenis').value;
+  const berat=parseFloat(v('set-berat').value);
+  v('set-err').textContent='';
+  if(!tgl||!nasabahId||!jenisId||!berat||berat<=0){v('set-err').textContent='Semua field wajib diisi dengan benar';return;}
+  const j=DB.getJenis(jenisId);
+  const total=Math.round(berat*j.harga);
+  const id=DB.genId('SET',DB.nextSetNum++);
+  DB.setoran.push({id,tanggal:tgl,nasabahId,jenisSampahId:jenisId,berat,hargaPerKg:j.harga,total});
+  // update saldo
+  DB.getNasabah(nasabahId).saldo += total;
+  toast(`Setoran berhasil! Saldo nasabah bertambah ${fmt(total)}`);
+  renderView('admin-setoran');
+}
+
+// ==================== ADMIN PENARIKAN ====================
+function renderAdminPenarikan() {
+  return `
+  <div class="page-header"><h2>Input Penarikan Saldo</h2><p>Proses penarikan saldo nasabah</p></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="card">
+      <div class="card-header"><div class="card-title">💸 Form Penarikan</div></div>
+      <div class="card-body">
+        <div class="form-group"><label>Tanggal</label><input id="tar-tgl" type="date" class="form-control" value="${new Date().toISOString().slice(0,10)}"></div>
+        <div class="form-group">
+          <label>Nasabah</label>
+          <select id="tar-nasabah" class="form-control" onchange="showSaldoNasabah()">
+            <option value="">-- Pilih Nasabah --</option>
+            ${DB.nasabah.map(n=>`<option value="${n.id}">${n.name} — ${fmt(n.saldo)}</option>`).join('')}
+          </select>
+        </div>
+        <div id="info-saldo" style="background:var(--g7);border-radius:10px;padding:12px;margin-bottom:14px;display:none">
+          <div style="font-size:12px;color:var(--gray5)">Saldo Tersedia</div>
+          <div id="saldo-display" style="font-size:22px;font-weight:800;color:var(--g2)"></div>
+        </div>
+        <div class="form-group">
+          <label>Jumlah Penarikan (Rp)</label>
+          <input id="tar-jumlah" type="number" class="form-control" placeholder="0" min="1000" step="1000">
+        </div>
+        <div class="form-error" id="tar-err"></div>
+        <button class="btn btn-accent btn-full" style="margin-top:8px" onclick="simpanPenarikan()">💸 Proses Penarikan</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">📋 Penarikan Terbaru</div></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tanggal</th><th>Nasabah</th><th>Jumlah</th></tr></thead>
+          <tbody>${DB.penarikan.slice(-6).reverse().map(p=>{
+            const n=DB.getNasabah(p.nasabahId);
+            return `<tr><td>${fmtDate(p.tanggal)}</td><td>${n?n.name:'-'}</td><td><span class="badge badge-red">${fmt(p.jumlah)}</span></td></tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+function showSaldoNasabah() {
+  const id=v('tar-nasabah').value, n=DB.getNasabah(id);
+  const info=v('info-saldo');
+  if(n){info.style.display='block';v('saldo-display').textContent=fmt(n.saldo);}
+  else info.style.display='none';
+}
+function simpanPenarikan() {
+  const tgl=v('tar-tgl').value, nasabahId=v('tar-nasabah').value, jumlah=parseInt(v('tar-jumlah').value);
+  v('tar-err').textContent='';
+  if(!tgl||!nasabahId||!jumlah||jumlah<1000){v('tar-err').textContent='Semua field wajib diisi (min Rp 1.000)';return;}
+  const n=DB.getNasabah(nasabahId);
+  if(jumlah>n.saldo){v('tar-err').textContent=`Saldo tidak cukup! Saldo: ${fmt(n.saldo)}`;return;}
+  const id=DB.genId('TAR',DB.nextTarNum++);
+  DB.penarikan.push({id,tanggal:tgl,nasabahId,jumlah});
+  n.saldo-=jumlah;
+  toast(`Penarikan ${fmt(jumlah)} berhasil!`);
+  renderView('admin-penarikan');
+}
+
+// ==================== ADMIN RIWAYAT ====================
+function renderAdminRiwayat() {
+  const all = [
+    ...DB.setoran.map(s=>({...s,type:'setoran'})),
+    ...DB.penarikan.map(p=>({...p,type:'penarikan'}))
+  ].sort((a,b)=>new Date(b.tanggal)-new Date(a.tanggal));
+  return `
+  <div class="page-header"><h2>Riwayat Transaksi</h2><p>Semua riwayat transaksi bank sampah</p></div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Semua Transaksi (${all.length})</div>
+      <div style="display:flex;gap:8px;font-size:13px">
+        <span class="badge badge-green">✅ ${DB.setoran.length} Setoran</span>
+        <span class="badge badge-red">💸 ${DB.penarikan.length} Penarikan</span>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Tanggal</th><th>Nasabah</th><th>Tipe</th><th>Detail</th><th>Jumlah</th></tr></thead>
+        <tbody>${all.map(t=>{
+          const n=DB.getNasabah(t.nasabahId);
+          if(t.type==='setoran'){
+            const j=DB.getJenis(t.jenisSampahId);
+            return `<tr>
+              <td style="font-size:11px;color:var(--gray5)">${t.id}</td>
+              <td>${fmtDate(t.tanggal)}</td>
+              <td>${n?n.name:'-'}</td>
+              <td><span class="badge badge-green">📥 Setoran</span></td>
+              <td style="font-size:12.5px">${j?j.jenis:'-'} · ${t.berat}kg</td>
+              <td style="font-weight:700;color:var(--g3)">${fmt(t.total)}</td>
+            </tr>`;
+          } else {
+            return `<tr>
+              <td style="font-size:11px;color:var(--gray5)">${t.id}</td>
+              <td>${fmtDate(t.tanggal)}</td>
+              <td>${n?n.name:'-'}</td>
+              <td><span class="badge badge-red">💸 Penarikan</span></td>
+              <td style="font-size:12.5px;color:var(--gray5)">—</td>
+              <td style="font-weight:700;color:#e53e3e">${fmt(t.jumlah)}</td>
+            </tr>`;
+          }
+        }).join('')}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// ==================== USER DASHBOARD ====================
+function renderUserDashboard() {
+  const n = DB.getNasabah(DB.currentUser.nasabahId||DB.currentUser.id);
+  if(!n) return '<p>Data nasabah tidak ditemukan</p>';
+  const setoran = DB.setoran.filter(s=>s.nasabahId===n.id);
+  const penarikan = DB.penarikan.filter(p=>p.nasabahId===n.id);
+  const totalBerat = setoran.reduce((a,s)=>a+s.berat,0);
+  const totalSetoran = setoran.reduce((a,s)=>a+s.total,0);
+  return `
+  <div class="page-header"><h2>Halo, ${n.name.split(' ')[0]}! 👋</h2><p>Selamat datang di EcoBank — Tabungan Sampah Anda</p></div>
+  <div class="saldo-card" style="margin-bottom:20px">
+    <div class="saldo-label">💰 SALDO TABUNGAN</div>
+    <div class="saldo-amount">${fmt(n.saldo)}</div>
+    <div class="saldo-id">ID Nasabah: ${n.id}</div>
+  </div>
+  <div class="stat-grid" style="margin-bottom:20px">
+    <div class="stat-card green">
+      <div class="stat-icon">⚖️</div>
+      <div class="stat-label">Total Sampah</div>
+      <div class="stat-value">${totalBerat} kg</div>
+      <div class="stat-sub">Telah disetorkan</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="stat-icon">📦</div>
+      <div class="stat-label">Transaksi Setoran</div>
+      <div class="stat-value">${setoran.length}</div>
+      <div class="stat-sub">${fmt(totalSetoran)} diperoleh</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-icon">💸</div>
+      <div class="stat-label">Transaksi Tarik</div>
+      <div class="stat-value">${penarikan.length}</div>
+      <div class="stat-sub">${fmt(penarikan.reduce((a,p)=>a+p.jumlah,0))} ditarik</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="card">
+      <div class="card-header"><div class="card-title">📊 Grafik Setoran Saya</div></div>
+      <div class="chart-area"><canvas id="chart-user"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">📋 Setoran Terbaru</div></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tanggal</th><th>Jenis</th><th>Berat</th><th>Total</th></tr></thead>
+          <tbody>${setoran.length?setoran.slice(-5).reverse().map(s=>{
+            const j=DB.getJenis(s.jenisSampahId);
+            return `<tr><td style="font-size:12px">${fmtDate(s.tanggal)}</td><td>${j?j.jenis:'-'}</td><td>${s.berat}kg</td><td><span class="badge badge-green">${fmt(s.total)}</span></td></tr>`;
+          }).join(''):`<tr><td colspan="4"><div class="empty-state" style="padding:20px"><p>Belum ada setoran</p></div></td></tr>`}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+function initUserChart() {
+  const n = DB.getNasabah(DB.currentUser.nasabahId||DB.currentUser.id);
+  if(!n||!v('chart-user')) return;
+  const months=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const monthData=Array(12).fill(0);
+  DB.setoran.filter(s=>s.nasabahId===n.id).forEach(s=>{const m=new Date(s.tanggal).getMonth();monthData[m]+=s.berat;});
+  charts['user']=new Chart(v('chart-user'),{
+    type:'line',
+    data:{labels:months,datasets:[{label:'Berat Sampah (kg)',data:monthData,fill:true,backgroundColor:'rgba(39,196,125,.12)',borderColor:'#27c47d',borderWidth:2.5,tension:.4,pointRadius:4,pointBackgroundColor:'#27c47d'}]},
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+  });
+}
+
+// ==================== USER SETORAN ====================
+function renderUserSetoran() {
+  const n = DB.getNasabah(DB.currentUser.nasabahId||DB.currentUser.id);
+  const list = DB.setoran.filter(s=>s.nasabahId===n.id).sort((a,b)=>new Date(b.tanggal)-new Date(a.tanggal));
+  return `
+  <div class="page-header"><h2>Riwayat Setoran</h2><p>Semua riwayat setoran sampah Anda</p></div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Setoran Saya (${list.length})</div>
+      <span class="badge badge-green">⚖️ ${list.reduce((a,s)=>a+s.berat,0)} kg total</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tanggal</th><th>Jenis Sampah</th><th>Berat</th><th>Harga/kg</th><th>Total</th></tr></thead>
+        <tbody>${list.length?list.map(s=>{
+          const j=DB.getJenis(s.jenisSampahId);
+          return `<tr>
+            <td>${fmtDate(s.tanggal)}</td>
+            <td>${j?j.jenis:'-'}</td>
+            <td><strong>${s.berat} kg</strong></td>
+            <td>${fmt(s.hargaPerKg)}</td>
+            <td><span class="badge badge-green">${fmt(s.total)}</span></td>
+          </tr>`;
+        }).join(''):`<tr><td colspan="5"><div class="empty-state"><div class="icon">📭</div><h3>Belum ada setoran</h3><p>Setorkan sampah Anda ke petugas bank sampah</p></div></td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// ==================== USER PENARIKAN ====================
+function renderUserPenarikan() {
+  const n = DB.getNasabah(DB.currentUser.nasabahId||DB.currentUser.id);
+  const list = DB.penarikan.filter(p=>p.nasabahId===n.id).sort((a,b)=>new Date(b.tanggal)-new Date(a.tanggal));
+  return `
+  <div class="page-header"><h2>Riwayat Penarikan</h2><p>Semua riwayat penarikan saldo Anda</p></div>
+  <div style="margin-bottom:16px">
+    <div class="saldo-card" style="max-width:400px">
+      <div class="saldo-label">💰 SALDO SAAT INI</div>
+      <div class="saldo-amount">${fmt(n.saldo)}</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Penarikan Saya (${list.length})</div>
+      <span class="badge badge-red">💸 ${fmt(list.reduce((a,p)=>a+p.jumlah,0))} total</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tanggal</th><th>Jumlah Penarikan</th><th>Status</th></tr></thead>
+        <tbody>${list.length?list.map(p=>`<tr>
+          <td>${fmtDate(p.tanggal)}</td>
+          <td style="font-weight:700;color:#e53e3e;font-size:16px">${fmt(p.jumlah)}</td>
+          <td><span class="badge badge-green">✅ Berhasil</span></td>
+        </tr>`).join(''):`<tr><td colspan="3"><div class="empty-state"><div class="icon">💸</div><h3>Belum ada penarikan</h3><p>Hubungi petugas untuk menarik saldo Anda</p></div></td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// ==================== USER HARGA ====================
+function renderUserHarga() {
+  return `
+  <div class="page-header"><h2>Harga Sampah</h2><p>Daftar harga pembelian sampah saat ini</p></div>
+  <div class="stat-grid" style="margin-bottom:20px">
+    <div class="stat-card green">
+      <div class="stat-icon">📦</div>
+      <div class="stat-label">Jenis Sampah</div>
+      <div class="stat-value">${DB.jenisSampah.length}</div>
+      <div class="stat-sub">Kategori aktif</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="stat-icon">💰</div>
+      <div class="stat-label">Harga Tertinggi</div>
+      <div class="stat-value">${(Math.max(...DB.jenisSampah.map(j=>j.harga))/1000).toFixed(0)}K</div>
+      <div class="stat-sub">per kilogram</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">💰 Daftar Harga Sampah</div></div>
+    <div style="padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px">
+      ${DB.jenisSampah.map(j=>`
+        <div style="background:var(--gray7);border-radius:12px;padding:18px;border:1.5px solid transparent;transition:var(--transition)" onmouseover="this.style.borderColor='var(--g4)'" onmouseout="this.style.borderColor='transparent'">
+          <div style="font-size:24px;margin-bottom:8px">♻️</div>
+          <div style="font-weight:700;font-size:14.5px;color:var(--text);margin-bottom:4px">${j.jenis}</div>
+          <div style="font-size:22px;font-weight:800;color:var(--g3)">${fmt(j.harga)}</div>
+          <div style="font-size:12px;color:var(--gray5)">per kilogram</div>
+          <div style="background:var(--g7);border-radius:8px;padding:6px 10px;margin-top:10px;font-size:12px;color:var(--g2)">
+            1 kg = <strong>${fmt(j.harga)}</strong>
+          </div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ==================== USER PROFIL ====================
+function renderUserProfil() {
+  const n = DB.getNasabah(DB.currentUser.nasabahId||DB.currentUser.id);
+  const setoran = DB.setoran.filter(s=>s.nasabahId===n.id);
+  const totalBerat = setoran.reduce((a,s)=>a+s.berat,0);
+  return `
+  <div class="page-header"><h2>Profil Saya</h2><p>Informasi akun dan data nasabah Anda</p></div>
+  <div style="display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start">
+    <div class="card">
+      <div class="profile-banner"></div>
+      <div class="profile-avatar">🙋</div>
+      <div class="profile-info">
+        <h3>${n.name}</h3>
+        <p>ID: ${n.id}</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 16px 0">
+          <div style="background:var(--g7);border-radius:10px;padding:12px;text-align:center">
+            <div style="font-size:18px;font-weight:800;color:var(--g2)">${setoran.length}</div>
+            <div style="font-size:11px;color:var(--gray5)">Setoran</div>
+          </div>
+          <div style="background:var(--g7);border-radius:10px;padding:12px;text-align:center">
+            <div style="font-size:18px;font-weight:800;color:var(--g2)">${totalBerat}kg</div>
+            <div style="font-size:11px;color:var(--gray5)">Total Sampah</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <div class="card-header"><div class="card-title">👤 Data Pribadi</div></div>
+        <div class="card-body">
+          ${[['Nama Lengkap',n.name,'👤'],['ID Nasabah',n.id,'🪪'],['No HP',n.hp,'📱'],['Alamat',n.alamat,'🏠']].map(([label,val,icon])=>`
+            <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--gray7)">
+              <div style="width:36px;height:36px;background:var(--g7);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">${icon}</div>
+              <div>
+                <div style="font-size:11.5px;color:var(--gray5);font-weight:600;text-transform:uppercase;letter-spacing:.5px">${label}</div>
+                <div style="font-weight:600;color:var(--text);margin-top:2px">${val}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="saldo-card">
+        <div class="saldo-label">💰 SALDO TABUNGAN</div>
+        <div class="saldo-amount">${fmt(n.saldo)}</div>
+        <div class="saldo-id">Saldo dapat dicairkan melalui petugas bank sampah</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ==================== INIT ====================
+window.onload = () => {
+  document.getElementById('login-screen').style.display = 'flex';
+};
+</script>
+</body>
+</html>
