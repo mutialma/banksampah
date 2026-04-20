@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoBank — Bank Sampah Digital</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast-container"></div>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="icon">♻️</div>
+      <div>
+        <h1>Eco<span>Bank</span></h1>
+        <div class="role-badge" style="margin-top:4px">Bank Sampah Digital</div>
+      </div>
+    </div>
+    <p class="login-sub">Kelola tabungan sampah Anda dengan mudah dan cepat</p>
+    <div class="role-tabs">
+      <button class="role-tab active" onclick="setLoginRole('admin')">👤 Admin</button>
+      <button class="role-tab" onclick="setLoginRole('user')">🙋 Nasabah</button>
+    </div>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="login-username" class="form-control" placeholder="Masukkan username" onkeydown="if(event.key==='Enter')doLogin()">
+      <div class="form-error" id="err-user"></div>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="login-password" class="form-control" placeholder="Masukkan password" onkeydown="if(event.key==='Enter')doLogin()">
+      <div class="form-error" id="err-pass"></div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="doLogin()" style="margin-top:4px;padding:13px">
+      🔐 Masuk
+    </button>
+    <div class="login-hint" id="login-hint">
+      <strong>Demo Admin:</strong> admin / admin123
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- APP -->
+<div id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="icon">♻️</div>
+      <div>
+        <h2>Eco<span>Bank</span></h2>
+        <div class="role-badge" id="sidebar-role-badge">Admin</div>
+      </div>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebar-avatar">👤</div>
+      <div>
+        <div class="sidebar-user-name" id="sidebar-username">Admin</div>
+        <div class="sidebar-user-role" id="sidebar-userrole">Administrator</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-bottom">
+      <button class="btn-logout" onclick="doLogout()">🚪 Keluar</button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="topbar-menu-btn" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-right">
+        <div class="topbar-date" id="topbar-date"></div>
+        <button class="topbar-notif">🔔<div class="notif-dot"></div></button>
+      </div>
+    </header>
+    <div class="page-content" id="page-content">
+      <!-- views rendered here -->
+    </div>
+  </div>
+</div>
+
+<!-- MODAL OVERLAY -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-box" role="dialog">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title"></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
